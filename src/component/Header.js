@@ -1,109 +1,107 @@
-import React from 'react'
-import styled from 'styled-components'
-import { selectUserName, setUserLoginDetails, selectUserPhoto, setSignOutState } from '../features/user/userSlice'
-import { useHistory } from 'react-router-dom/cjs/react-router-dom'
-import { useDispatch, useSelector } from 'react-redux'
-import { auth, provider } from "../FirebaseConfig"
-import { signInWithPopup } from '@firebase/auth'
-import { useEffect } from 'react'
+import React from 'react';
+import styled from 'styled-components';
+import { useSelector, useDispatch } from 'react-redux';
+import { useHistory } from 'react-router-dom';
+import { selectUserName, setUserLoginDetails, selectUserPhoto, setSignOutState } from '../features/user/userSlice';
+import { auth, provider } from '../FirebaseConfig';
+import { signInWithPopup } from '@firebase/auth';
+import { useEffect } from 'react';
+
 const Header = (props) => {
-  const dispatch = useDispatch()
-  const history = useHistory()
-  // const userName = useSelector(selectUserName);
-  const userName = useSelector(state => state.user);
+  const dispatch = useDispatch();
+  const history = useHistory();
+  const userName = useSelector((state) => state.user);
   const userPhoto = useSelector(selectUserPhoto);
 
-
-
-  const handleAuth = () => {
-    
-      signInWithPopup(auth, provider).then((result) => {
-        console.log(result)
-        setUser(result.user)
-      }).catch((err) => {
-        alert(err.message);
-      });
-    
-     if(userName){
-        auth.signOut().then(()=>{
-          dispatch(setSignOutState())
-          history.push('/')
-        })
-        .catch((err)=>{
-          alert(err)
-        })
-    }
-
-  };
-  useEffect(() => {
-    auth.onAuthStateChanged(async (user) => {
-      if (user) {
-        setUser(user)
-        history.push('./home')
+  const handleAuth = async () => {
+    try {
+      if (!auth.currentUser) {
+        // User is not logged in, so we attempt to sign them in
+        const result = await signInWithPopup(auth, provider);
+        console.log(result);
+        setUser(result.user);
+        history.push('/home');
+      } else {
+        // User is already logged in, so we sign them out
+        await auth.signOut();
+        dispatch(setSignOutState());
+        history.push('/');
       }
-    })
+    } catch (error) {
+      alert(error.message);
+    }
+  };
 
-  }, [userName])
+  useEffect(() => {
+    // Redirect user to /home if they are logged in
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        setUser(user);
+        history.push('/home');
+      }
+    });
 
+    // Clean up the listener when the component unmounts
+    return () => unsubscribe();
+  }, [auth.currentUser]);
 
   const setUser = (user) => {
     dispatch(
       setUserLoginDetails({
         name: user.displayName,
         email: user.email,
-        photo: user.photoURL
+        photo: user.photoURL,
       })
-    )
-  }
+    );
+  };
+
   return (
     <Nav>
       <Logo>
-        <img src="/images/logo.svg" alt='Disney+' />
+        <img src="/images/logo.svg" alt="Disney+" />
       </Logo>
-
-      {
-        !userName ?
-          (<Login onClick={handleAuth}>Login</Login>) :
-          (<>
-            <NavMenu>
-
-              <a href='/home'>
-                <img src='/images/home-icon.svg' alt='HOME' />
-                <span>HOME</span>
-              </a>
-              <a href='/home'>
-                <img src='/images/search-icon.svg' alt='HOME' />
-                <span>SEARCH</span>
-              </a>
-              <a href='/home'>
-                <img src='/images/watchlist-icon.svg' alt='HOME' />
-                <span>WATCHLIST</span>
-              </a>
-              <a href='/home'>
-                <img src='/images/original-icon.svg' alt='HOME' />
-                <span>ORIGINALS</span>
-              </a>
-              <a href='/home'>
-                <img src='/images/movie-icon.svg' alt='HOME' />
-                <span>MOVIES</span>
-              </a>
-              <a href='/home'>
-                <img src='/images/series-icon.svg' alt='HOME' />
-                <span>SERIES</span>
-              </a>
-            </NavMenu>
-            <SignOut>
-              <UserImg src={userPhoto} alt="userimg" />
-              <DropDown>
-                <span onClick={handleAuth}>SignOut</span>
-              </DropDown>
-            </SignOut>
-          </>)
-      }
-      <Login onClick={handleAuth}>Login</Login>
+      {!auth.currentUser ? (
+        <Login onClick={handleAuth}>Login</Login>
+      ) : (
+        <>
+          <NavMenu>
+            <a href="/home">
+              <img src="/images/home-icon.svg" alt="HOME" />
+              <span>HOME</span>
+            </a>
+            <a href="/home">
+              <img src="/images/search-icon.svg" alt="HOME" />
+              <span>SEARCH</span>
+            </a>
+            <a href="/home">
+              <img src="/images/watchlist-icon.svg" alt="HOME" />
+              <span>WATCHLIST</span>
+            </a>
+            <a href="/home">
+              <img src="/images/original-icon.svg" alt="HOME" />
+              <span>ORIGINALS</span>
+            </a>
+            <a href="/home">
+              <img src="/images/movie-icon.svg" alt="HOME" />
+              <span>MOVIES</span>
+            </a>
+            <a href="/home">
+              <img src="/images/series-icon.svg" alt="HOME" />
+              <span>SERIES</span>
+            </a>
+          </NavMenu>
+          {/* <SignOut>
+            <DropDown>
+            <span onClick={handleAuth}>Sign Out</span>
+            </DropDown>
+          </SignOut> */}
+          <Login onClick={handleAuth}>Logout</Login>
+          <UserImg src={userPhoto} alt="userimg" />
+        </>
+      )}
     </Nav>
-  )
-}
+  );
+};
 const Nav = styled.nav`
     position: fixed;
     top:0;
@@ -114,7 +112,7 @@ const Nav = styled.nav`
     display:flex;
     justify-content:space-between;
     align-items:center;
-    padding: 0 36px;
+    padding: 0 25px;
     letter-spacing:16px;
     z-index: 3;
 `
@@ -210,6 +208,9 @@ const Login = styled.a`
 `;
 const UserImg = styled.img`
   height:100%;
+  border-radius:50%;
+  padding:8px;
+  margin:5px 0px 5px 5px;
 `;
 
 const SignOut = styled.div`
