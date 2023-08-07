@@ -10,39 +10,47 @@ import { useDispatch } from "react-redux"
 
 import { setMovies } from "../features/movie/movieSlice"
 import { selectUserName } from "../features/user/userSlice"
-import {db} from "../FirebaseConfig"
+import { db } from "../FirebaseConfig"
+import { collection, getDocs,onSnapshot } from "firebase/firestore";
+
+
 
 
 const Home = (props) => {
   const dispatch = useDispatch();
   const userName = useSelector(selectUserName);
-  let recommends = [];
-  let newDisneys = [];
-  let originals = [];
-  let trending = [];
+
 
   useEffect(() => {
     console.log("hello");
-    const moviesCollection = db.collection("movies");
-    moviesCollection.onSnapshot((snapshot) => {
-      snapshot.docs.map((doc) => {
-        console.log(recommends);
-        switch (doc.data().type) {
+    const moviesCollectionRef = collection(db, "movies");
+    const unsubscribe = onSnapshot(moviesCollectionRef, (snapshot) => {
+      // Initialize empty arrays for different types of movies
+      let recommends = [];
+      let newDisneys = [];
+      let originals = [];
+      let trending = [];
+
+
+      snapshot.docs.forEach((doc) => {
+        const movieData = doc.data();
+        switch (movieData.type) {
           case "recommend":
-            recommends = [...recommends, { id: doc.id, ...doc.data() }];
+            recommends.push({ id: doc.id, ...movieData });
             break;
-
           case "new":
-            newDisneys = [...newDisneys, { id: doc.id, ...doc.data() }];
+            newDisneys.push({ id: doc.id, ...movieData });
             break;
-
           case "original":
-            originals = [...originals, { id: doc.id, ...doc.data() }];
+            originals.push({ id: doc.id, ...movieData });
+            break;
+          case "trending":
+            trending.push({ id: doc.id, ...movieData });
+            break;
+          default:
+            // Handle any other type of movie data if needed
             break;
 
-          case "trending":
-            trending = [...trending, { id: doc.id, ...doc.data() }];
-            break;
         }
       });
 
@@ -55,17 +63,19 @@ const Home = (props) => {
         })
       );
     });
-  }, [userName]);
-    return (
-      <Container>
-        <ImgSlider />
-        <Viewers />
-        <Recommends />
-        <NewDisney />
-        <Originals />
-      </Container>
-    )
-  }
+
+    return () => unsubscribe(); // Unsubscribe from the Firestore snapshot listener when the component unmounts
+  }, [userName, dispatch]);
+  return (
+    <Container>
+      <ImgSlider />
+      <Viewers />
+      <Recommends />
+      <NewDisney />
+      <Originals />
+    </Container>
+  )
+}
 
 const Container = styled.main`
   position:relative;
@@ -90,5 +100,5 @@ const Container = styled.main`
 
 `
 
-  export default Home
+export default Home
 

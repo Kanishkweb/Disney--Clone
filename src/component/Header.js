@@ -10,7 +10,7 @@ import { useEffect } from 'react';
 const Header = (props) => {
   const dispatch = useDispatch();
   const history = useHistory();
-  const userName = useSelector((state) => state.user);
+  const userName = useSelector(selectUserName);
   const userPhoto = useSelector(selectUserPhoto);
 
   const handleAuth = async () => {
@@ -90,11 +90,6 @@ const Header = (props) => {
               <span>SERIES</span>
             </a>
           </NavMenu>
-          {/* <SignOut>
-            <DropDown>
-            <span onClick={handleAuth}>Sign Out</span>
-            </DropDown>
-          </SignOut> */}
           <Login onClick={handleAuth}>Logout</Login>
           <UserImg src={userPhoto} alt="userimg" />
         </>

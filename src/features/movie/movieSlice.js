@@ -2,9 +2,9 @@ import { createSlice } from "@reduxjs/toolkit";
 
 
 const initialState = {
-    recommended:null,
-    newDisney:null,
-    originals:null,
+    recommend:null, 
+    newDisney:null, // wrong
+    original:null,  
     trending:null,
 };
 
@@ -13,7 +13,7 @@ const movieSlice = createSlice({
     initialState,
     reducers:{
         setMovies:(state,action) => {
-            state.recommended = action.payload.recommended;
+            state.recommend = action.payload.recommend;
             state.newDisney = action.payload.newDisney;
             state.original = action.payload.original;
             state.trending = action.payload.trending;
