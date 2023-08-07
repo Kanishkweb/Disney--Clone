@@ -1,9 +1,9 @@
 import styled from "styled-components"
 import { Link } from "react-router-dom/cjs/react-router-dom.min";
-const Recommends = (props) => {
+const Originals = (props) => {
     return (
         <Container>
-            <h4>Recommended for You</h4>
+            <h4>Originals</h4>
             <Content>
                 <Wrap>
                     <Link to='/'>
@@ -78,4 +78,5 @@ const Wrap = styled.div`
         border-color:rgba(249, 249, 249, 0.8)
     }
 `;
-export default Recommends;
+
+export default Originals
