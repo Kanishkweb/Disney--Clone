@@ -1,34 +1,30 @@
-import styled from "styled-components"
-import { Link } from "react-router-dom/cjs/react-router-dom.min";
+import styled from "styled-components";
+import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { selectRecommend } from "../features/movie/movieSlice";
 const NewDisney = (props) => {
+    const movie = useSelector(state => state.movie.newDisney);
+
+    console.log(movie, ":🛢️");
+
     return (
         <Container>
-            <h4>New to Disney</h4>
+            <h4>New To DisneyPlus</h4>
             <Content>
-                <Wrap>
-                    <Link to='/'>
-                        <img src="" alt="" />
-                    </Link>
-                </Wrap>
-                <Wrap>
-                    <Link to='/'>
-                        <img src="" alt="" />
-                    </Link>
-                </Wrap>
-                <Wrap>
-                    <Link to='/'>
-                        <img src="" alt="" />
-                    </Link>
-                </Wrap>
-                <Wrap>
-                    <Link to='/'>
-                        <img src="" alt="" />
-                    </Link>
-                </Wrap>
+                {movie &&
+                    movie.map((movie, key) => (
+                        <Wrap key={key}>
+                            {movie.id}
+                            <Link to={`/detail/` + movie.id}>
+                                <img src={movie.cardImg} alt={movie.title} />
+                            </Link>
+                        </Wrap>
+                    ))}
             </Content>
         </Container>
-    )
-}
+    );
+};
+
 
 const Container = styled.div`
     padding:0px 0px 26px;

@@ -5,13 +5,14 @@ import Recommends from "./Recommends"
 import NewDisney from "./NewDisney"
 import Originals from "./Originals"
 import { useEffect } from "react"
-import { UseSelector, useSelector } from "react-redux/es/hooks/useSelector"
+import { useSelector } from "react-redux/es/hooks/useSelector"
 import { useDispatch } from "react-redux"
 
 import { setMovies } from "../features/movie/movieSlice"
 import { selectUserName } from "../features/user/userSlice"
 import { db } from "../FirebaseConfig"
 import { collection, getDocs,onSnapshot } from "firebase/firestore";
+import Trending from "./Trending"
 
 
 
@@ -23,7 +24,7 @@ const Home = (props) => {
 
   useEffect(() => {
     console.log("hello");
-    const moviesCollectionRef = collection(db, "movies");
+    const moviesCollectionRef = collection(db, "movie");
     const unsubscribe = onSnapshot(moviesCollectionRef, (snapshot) => {
       // Initialize empty arrays for different types of movies
       let recommends = [];
@@ -73,6 +74,7 @@ const Home = (props) => {
       <Recommends />
       <NewDisney />
       <Originals />
+      <Trending/>
     </Container>
   )
 }
