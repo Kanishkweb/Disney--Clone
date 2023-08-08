@@ -1,8 +1,6 @@
 import styled from "styled-components";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { doc, getDoc } from "firebase/firestore";
-
 import { selectRecommend } from "../features/movie/movieSlice";
 
 const Recommends = (props) => {

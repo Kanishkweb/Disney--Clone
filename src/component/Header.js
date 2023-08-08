@@ -10,7 +10,7 @@ import { useEffect } from 'react';
 const Header = (props) => {
   const dispatch = useDispatch();
   const history = useHistory();
-  const userName = useSelector(selectUserName);
+  const userName = useSelector((state) => state.user);
   const userPhoto = useSelector(selectUserPhoto);
 
   const handleAuth = async () => {
